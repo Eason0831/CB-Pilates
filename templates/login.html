@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>管理员登录</h2>
+<form method="POST" action="{{ url_for('admin_login') }}" class="col-md-4">
+  <div class="form-group">
+    <label for="password">请输入管理员密码：</label>
+    <input type="password" class="form-control" name="password" required/>
+  </div>
+  <button type="submit" class="btn btn-primary">登录</button>
+</form>
+{% endblock %}

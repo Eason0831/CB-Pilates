@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>可预约课程</h2>
+<div class="row">
+  {% for course in courses %}
+  <div class="col-md-4 mb-3">
+    {% set is_full = (course.remaining <= 0) %}
+    <div class="card {% if is_full %}bg-light text-muted{% endif %}">
+      <div class="card-body">
+        <h5 class="card-title">{{ course.name }}</h5>
+        <p class="card-text">
+          时间：{{ course.start_time.strftime("%Y-%m-%d %H:%M") }}<br>
+          剩余名额：{{ course.remaining }}
+        </p>
+        {% if is_full %}
+          <button class="btn btn-secondary" disabled>该课程已满</button>
+          <!-- 也可以做个提示 -->
+        {% else %}
+          <!-- 预约按钮，触发 modal 或跳转表单 -->
+          <button
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target="#enrollModal"
+            data-course-id="{{ course.id }}"
+          >
+            预约
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- 预约表单模态框 -->
+<div
+  class="modal fade"
+  id="enrollModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="enrollModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <form method="POST" action="{{ url_for('enroll') }}" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="enrollModalLabel">预约课程</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="course_id" id="course_id" value=""/>
+        <div class="form-group">
+          <label for="name">姓名：</label>
+          <input type="text" class="form-control" name="name" required/>
+        </div>
+        <div class="form-group">
+          <label for="phone">电话（+1开头）：</label>
+          <input type="text" class="form-control" name="phone" placeholder="+1xxxxxx" required/>
+        </div>
+        <div class="form-group">
+          <label for="email">邮箱（可选）：</label>
+          <input type="email" class="form-control" name="email" />
+        </div>
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="waitlist" name="want_waitlist" value="true" />
+          <label class="form-check-label" for="waitlist">若满员则自动加入候补名单</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+        <button type="submit" class="btn btn-primary">提交预约</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // 将按钮中的 data-course-id 赋值给隐藏的表单字段
+  $('#enrollModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var courseId = button.data('course-id');
+    var modal = $(this);
+    modal.find('#course_id').val(courseId);
+  });
+</script>
+
+{% endblock %}

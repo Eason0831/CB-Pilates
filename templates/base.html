@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CB普拉提馆</title>
+  <!-- 引入 Bootstrap CSS，也可以用其他前端框架 -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('index') }}">CB普拉提馆</a>
+    <div class="navbar-nav ml-auto">
+      <a class="nav-item nav-link" href="{{ url_for('calendar_view') }}">日历视图</a>
+      {% if session.get('admin_logged_in') %}
+      <a class="nav-item nav-link" href="{{ url_for('admin_dashboard') }}">后台管理</a>
+      <a class="nav-item nav-link" href="{{ url_for('admin_logout') }}">退出</a>
+      {% else %}
+      <a class="nav-item nav-link" href="{{ url_for('admin_login') }}">管理登录</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Bootstrap JS 依赖 -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>

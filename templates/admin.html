@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>后台管理</h2>
+<hr>
+<div class="row">
+  <div class="col-md-6">
+    <h4>课程列表</h4>
+    <ul class="list-group">
+      {% for course in courses %}
+      <li class="list-group-item">
+        <strong>{{ course.name }}</strong>
+        <br>时间：{{ course.start_time.strftime("%Y-%m-%d %H:%M") }}
+        <br>最大容量：{{ course.max_capacity }}
+        <br>已预约人数：{{ course.enrollments|selectattr("is_waitlist", "equalto", False)|list|length }}
+        <br>候补人数：{{ course.enrollments|selectattr("is_waitlist", "equalto", True)|list|length }}
+        <br>
+        <a href="{{ url_for('delete_course', course_id=course.id) }}" class="btn btn-danger btn-sm mt-2" 
+          onclick="return confirm('确认删除该课程？相关预约记录也会被删除！')"
+        >
+          删除课程
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    <hr>
+    <h5>添加新课程</h5>
+    <form method="POST" action="{{ url_for('add_course') }}">
+      <div class="form-group">
+        <label for="name">课程名称</label>
+        <input type="text" class="form-control" name="name" required/>
+      </div>
+      <div class="form-group">
+        <label for="start_time">开始时间 (格式：YYYY-MM-DD HH:MM)</label>
+        <input type="text" class="form-control" name="start_time" placeholder="2025-01-01 10:00" required/>
+      </div>
+      <div class="form-group">
+        <label for="max_capacity">最大人数</label>
+        <input type="number" class="form-control" name="max_capacity" required/>
+      </div>
+      <button type="submit" class="btn btn-primary">添加课程</button>
+    </form>
+  </div>
+  <div class="col-md-6">
+    <h4>预约记录</h4>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>电话</th>
+          <th>邮箱</th>
+          <th>课程</th>
+          <th>时间</th>
+          <th>预约提交</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in enrollments %}
+        <tr>
+          <td>{{ e.name }}</td>
+          <td>{{ e.phone }}</td>
+          <td>{{ e.email or '无' }}</td>
+          <td>{{ e.course.name }}</td>
+          <td>{{ e.course.start_time.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td>{{ e.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+          <td>
+            {% if e.is_waitlist %}
+              候补
+            {% else %}
+              已预约
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('cancel', enroll_id=e.id) }}" 
+               class="btn btn-warning btn-sm"
+               onclick="return confirm('确认取消该预约？');"
+            >
+              取消
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
