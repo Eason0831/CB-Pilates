@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+  <!-- 引入 Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* Hero 区域样式，与主页一致 */
+    .hero-courses {
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+      background-size: cover;
+      padding: 3rem 0;
+      color: #fff;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .hero-courses h1 {
+      font-family: 'Roboto Slab', serif;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .hero-courses p {
+      font-size: 1.25rem;
+      margin-bottom: 0;
+    }
+    /* 课程卡片效果 */
+    .course-card {
+      transition: transform 0.2s;
+    }
+    .course-card:hover {
+      transform: translateY(-5px);
+    }
+  </style>
+{% endblock %}
+{% block content %}
+<!-- Hero 区域 -->
+<div class="hero-courses">
+  <div class="container">
+    <h1>普拉提课程介绍</h1>
+    <p>探索多样普拉提课程，打造健康与平衡的生活方式</p>
+  </div>
+</div>
+
+<!-- 课程卡片区域 -->
+<div class="container my-5">
+  <div class="row">
+    <!-- 垫上普拉提 -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card course-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="fas fa-yin-yang fa-3x mb-3" style="color: #2575fc;"></i>
+          <h5 class="card-title">垫上普拉提</h5>
+          <p class="card-text">
+            基础核心训练，增强柔韧性与平衡感，适合所有级别学员。
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- 私教普拉提 -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card course-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="fas fa-user-friends fa-3x mb-3" style="color: #6a11cb;"></i>
+          <h5 class="card-title">私教普拉提</h5>
+          <p class="card-text">
+            一对一定制指导，针对个人需求量身打造训练计划。
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- 大器械普拉提 -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card course-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="fas fa-dumbbell fa-3x mb-3" style="color: #2575fc;"></i>
+          <h5 class="card-title">大器械普拉提</h5>
+          <p class="card-text">
+            借助专业器械进行全身力量与平衡训练，适合进阶学员。
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- 普拉提小团课 -->
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card course-card h-100 shadow-sm">
+        <div class="card-body text-center">
+          <i class="fas fa-users fa-3x mb-3" style="color: #6a11cb;"></i>
+          <h5 class="card-title">普拉提小团课</h5>
+          <p class="card-text">
+            小班授课，互动交流，共同提升训练效果。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

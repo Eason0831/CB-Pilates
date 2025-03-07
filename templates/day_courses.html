@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+  <style>
+    .course-card {
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .course-card:hover {
+      transform: scale(1.02);
+    }
+    .course-icon {
+      font-size: 3rem;
+      color: #2575fc;
+    }
+    .course-badge-full {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+<h2 class="text-center mb-4">{{ t.calendar_view }} - {{ date }}</h2>
+<div class="row">
+  {% for course in courses %}
+    {% set is_full = (course.remaining <= 0) %}
+    <!-- 如果数据库里保存的是“未知”，且当前语言是英文，则替换成“Unknown” -->
+    {% set teacher_display = course.teacher %}
+    {% if teacher_display == '未知' and session.get('lang') == 'en' %}
+      {% set teacher_display = 'Unknown' %}
+    {% endif %}
+    <div class="col-sm-6 col-12 mb-3">
+      <div class="card course-card {% if is_full %}bg-light text-muted{% endif %}">
+        {% if is_full %}
+          <span class="badge badge-danger course-badge-full">{{ t.full }}</span>
+        {% endif %}
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="fas fa-dumbbell course-icon"></i>
+          </div>
+          <h5 class="card-title">{{ course.name }}</h5>
+          <p class="card-text">
+            <small>{{ t.teacher_label }}: {{ teacher_display }}</small><br>
+            <small>{{ t.time_label }}: {{ course.start_time.strftime("%Y-%m-%d %H:%M") }}</small><br>
+            <small>{{ t.remaining }}: {{ course.remaining }}</small>
+          </p>
+          <button type="button" class="btn {% if is_full %}btn-secondary{% else %}btn-primary{% endif %}"
+                  data-toggle="modal"
+                  data-target="#enrollModal"
+                  data-courseid="{{ course.id }}"
+                  onclick="setSelectedCourse({{ course.id }})">
+            {% if is_full %}{{ t.waitlist }}{% else %}{{ t.book }}{% endif %}
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- 预约表单模态框，与 available_courses 模板一致 -->
+<div class="modal fade" id="enrollModal" tabindex="-1" role="dialog" aria-labelledby="enrollModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="POST" action="{{ url_for('enroll') }}" class="modal-content">
+      <div class="modal-header" style="background: #2575fc; color: #fff;">
+        <h5 class="modal-title" id="enrollModalLabel">{{ t.book }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{ t.close }}">
+          <span aria-hidden="true" style="color: #fff;">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="course_id" id="course_id">
+        <div class="form-group">
+          <label for="name">{{ t.name }}:</label>
+          <input type="text" class="form-control" name="name" id="name" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">{{ t.phone }}:</label>
+          <input type="text" class="form-control" name="phone" id="phone" pattern="\d{10}" placeholder="{{ t.phone_hint }}" required>
+        </div>
+        <div class="form-group">
+          <label for="email">{{ t.email }}:</label>
+          <input type="email" class="form-control" name="email" id="email">
+        </div>
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="waitlist" name="want_waitlist" value="true">
+          <label class="form-check-label" for="waitlist">{{ t.auto_waitlist }}</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ t.close }}</button>
+        <button type="submit" class="btn btn-primary">{{ t.submit }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function setSelectedCourse(courseId) {
+  document.getElementById('course_id').value = courseId;
+}
+$('#enrollModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget);
+  var courseId = button.data('courseid');
+  $(this).find('#course_id').val(courseId);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg">
+        <!-- 卡片头部，背景渐变色 -->
+        <div class="card-header text-center text-white" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
+          <h3 class="mb-0">{{ t.contact_us }}</h3>
+        </div>
+        <div class="card-body text-center">
+          <!-- 电话号码 -->
+          <p class="mb-3" style="font-size: 1.25rem;">
+            <i class="fas fa-phone-alt"></i>
+            <strong>{{ t.phone_number }}</strong>2368668286
+          </p>
+          <!-- 微信号 -->
+          <p class="mb-3" style="font-size: 1.25rem;">
+            <i class="fab fa-weixin"></i>
+            <strong>{{ t.wechat }}</strong>CBpilates1
+          </p>
+          <!-- 微信二维码 -->
+          <div class="my-4">
+            <img src="{{ url_for('static', filename='images/Abby.jpg') }}" alt="微信二维码" class="img-fluid" style="max-width: 250px;">
+          </div>
+        </div>
+        <div class="card-footer text-center">
+          <small class="text-muted">欢迎随时联系我们</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

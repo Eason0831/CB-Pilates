@@ -1,0 +1,6 @@
+/* 让已满的课程卡片看起来灰一点 */
+/* 如果你在 index.html 用了 opacity 方案，可以加上类似： */
+.card.bg-light.text-muted {
+    opacity: 0.5;
+  }
+  

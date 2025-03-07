@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">课程详情 - {{ course.name }}</h2>
+  <div class="mb-4">
+    <form method="POST" action="{{ url_for('course_detail', course_id=course.id) }}">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label for="name">课程名称</label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ course.name }}" required>
+        </div>
+        <div class="form-group col-md-4">
+          <label for="teacher">教师</label>
+          <input type="text" class="form-control" id="teacher" name="teacher" value="{{ course.teacher }}" required>
+        </div>
+        <div class="form-group col-md-4">
+          <label for="start_time">开始时间</label>
+          <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="{{ course.start_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label for="max_capacity">最大容量</label>
+          <input type="number" class="form-control" id="max_capacity" name="max_capacity" value="{{ course.max_capacity }}" required>
+        </div>
+        <div class="form-group col-md-4">
+          <label>剩余名额</label>
+          <input type="text" class="form-control" value="{{ remaining }}" readonly>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> 更新课程信息</button>
+    </form>
+  </div>
+
+  <hr>
+  <h4>预约记录</h4>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th><i class="fas fa-user"></i> 姓名</th>
+        <th><i class="fas fa-phone"></i> 电话</th>
+        <th><i class="fas fa-envelope"></i> 邮箱</th>
+        <th><i class="fas fa-info-circle"></i> 状态</th>
+        <th><i class="fas fa-calendar-alt"></i> 预约时间</th>
+        <th><i class="fas fa-cogs"></i> 操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in enrollments %}
+      <tr>
+        <td>{{ e.name }}</td>
+        <td>{{ e.phone }}</td>
+        <td>{{ e.email or '无' }}</td>
+        <td>{% if e.is_waitlist %}候补{% else %}已预约{% endif %}</td>
+        <td>{{ e.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+        <td>
+          <a href="{{ url_for('edit_enrollment', enroll_id=e.id) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> 编辑</a>
+          <a href="{{ url_for('delete_enrollment', enroll_id=e.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('确认删除该预约信息？')"><i class="fas fa-trash-alt"></i> 删除</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

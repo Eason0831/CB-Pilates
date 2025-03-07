@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero Section -->
+<div class="jumbotron jumbotron-fluid text-white hero-section" style="background: linear-gradient(135deg, #17a2b8, #007bff); margin-bottom: 0;">
+  <div class="container text-center">
+    <h1 class="display-4">{{ t.calendar_view }}</h1>
+    <p class="lead">{{ t.calendar_intro }}</p>
+  </div>
+</div>
+
+<!-- Calendar Container -->
+<div class="container my-4">
+  <div id="calendar" class="shadow rounded"></div>
+</div>
+
+<!-- Responsive Styles -->
+<style>
+  @media (max-width: 576px) {
+    .hero-section {
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+    }
+    .hero-section .display-4 {
+      font-size: 2rem !important;
+    }
+    .hero-section .lead {
+      font-size: 1rem !important;
+    }
+  }
+</style>
+
+<!-- FullCalendar CSS & JS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var colors = ["#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8", "#6f42c1"];
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    locale: '{{ session.get("lang", "zh") }}' === 'zh' ? 'zh-cn' : 'en',
+    events: '/api/events',
+    eventDisplay: 'block',
+    eventContent: function(arg) {
+      return {
+        html: `
+          <div style="white-space: normal; overflow: visible; padding: 2px;">
+            <div style="font-weight: bold; font-size: 0.9em;">${arg.event.start.toLocaleDateString()}</div>
+            <div style="margin-top: 2px; font-size: 0.9em;">${arg.event.title}</div>
+          </div>
+        `
+      };
+    },
+    eventDidMount: function(info) {
+      var parts = info.event.title.split(' ');
+      var count = parseInt(parts[0]);
+      if (isNaN(count) || count <= 0) {
+        info.el.style.backgroundColor = "#6c757d";
+        info.el.style.borderColor = "#6c757d";
+        info.el.style.color = "#fff";
+      } else {
+        var idx = count % colors.length;
+        info.el.style.backgroundColor = colors[idx];
+        info.el.style.borderColor = colors[idx];
+        info.el.style.color = "#fff";
+      }
+    },
+    eventClick: function(info) {
+      // 生成 URL 时在末尾添加斜杠以确保路由匹配
+      window.location.href = "/day/" + info.event.id + "/";
+    }
+  });
+  calendar.render();
+  setInterval(function() {
+    calendar.refetchEvents();
+  }, 20000);
+  window.addEventListener('resize', function() {
+    calendar.updateSize();
+  });
+});
+</script>
+{% endblock %}

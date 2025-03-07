@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero Section -->
+<div class="jumbotron jumbotron-fluid text-white" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
+  <div class="container text-center">
+    <h1 class="display-4">{{ t.title }}</h1>
+    <p class="lead">{{ t.welcome }} {{ t.title }}</p>
+  </div>
+</div>
+
+<div class="container my-5">
+  <div class="row">
+    <!-- Available Courses Card -->
+    <div class="col-md-3 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-dumbbell fa-3x text-primary mb-3"></i>
+          <h5 class="card-title">{{ t.available_courses }}</h5>
+          {% if session.get('lang', 'zh') == 'zh' %}
+            <p class="card-text">浏览并预约我们的课程</p>
+          {% else %}
+            <p class="card-text">Browse and book our courses</p>
+          {% endif %}
+          <a href="{{ url_for('available_courses') }}" class="btn btn-primary btn-block">
+            {% if session.get('lang', 'zh') == 'zh' %}
+              进入
+            {% else %}
+              Enter
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Calendar Card -->
+    <div class="col-md-3 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
+          <h5 class="card-title">{{ t.calendar_view }}</h5>
+          {% if session.get('lang', 'zh') == 'zh' %}
+            <p class="card-text">查看课程日历</p>
+          {% else %}
+            <p class="card-text">View our course calendar</p>
+          {% endif %}
+          <a href="{{ url_for('calendar_view') }}" class="btn btn-success btn-block">
+            {% if session.get('lang', 'zh') == 'zh' %}
+              进入
+            {% else %}
+              Enter
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Course Introduction Card -->
+    <div class="col-md-3 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-book-open fa-3x text-warning mb-3"></i>
+          <h5 class="card-title">
+            {% if session.get('lang', 'zh') == 'zh' %}
+              课程介绍
+            {% else %}
+              Course Introduction
+            {% endif %}
+          </h5>
+          {% if session.get('lang', 'zh') == 'zh' %}
+            <p class="card-text">了解我们的普拉提课程，探索更多训练方式</p>
+          {% else %}
+            <p class="card-text">Discover our Pilates courses and training methods</p>
+          {% endif %}
+          <a href="{{ url_for('courses') }}" class="btn btn-warning btn-block">
+            {% if session.get('lang', 'zh') == 'zh' %}
+              进入
+            {% else %}
+              Enter
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Contact Card -->
+    <div class="col-md-3 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <i class="fas fa-envelope fa-3x text-info mb-3"></i>
+          <h5 class="card-title">{{ t.contact_us }}</h5>
+          {% if session.get('lang', 'zh') == 'zh' %}
+            <p class="card-text">联系我们获取更多信息</p>
+          {% else %}
+            <p class="card-text">Contact us for more information</p>
+          {% endif %}
+          <a href="{{ url_for('contact') }}" class="btn btn-info btn-block">
+            {% if session.get('lang', 'zh') == 'zh' %}
+              进入
+            {% else %}
+              Enter
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

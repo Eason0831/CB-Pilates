@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero 区域 -->
+<div class="jumbotron jumbotron-fluid text-white hero-section" style="background: linear-gradient(135deg, #17a2b8, #007bff); margin-bottom: 0;">
+  <div class="container text-center">
+    <h1 class="display-4">{{ t.calendar_view }}</h1>
+    {% if session.get('lang', 'zh') == 'zh' %}
+      <p class="lead">轻松查看最新课程日历</p>
+    {% else %}
+      <p class="lead">Easily view our latest course schedule</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- 日历容器 -->
+<div class="container my-4">
+  <div id="calendar" class="shadow rounded"></div>
+</div>
+
+<!-- 模态框：日历预约 -->
+<div class="modal fade" id="calendarEnrollModal" tabindex="-1" role="dialog" aria-labelledby="calendarEnrollModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="POST" action="{{ url_for('calendar_enroll') }}" class="modal-content">
+      <div class="modal-header" style="background: linear-gradient(135deg, #007bff, #17a2b8); color: white;">
+        <h5 class="modal-title" id="calendarEnrollModalLabel">{{ t.book }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{ t.close }}">
+          <span aria-hidden="true" style="color: white;">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="course_id" id="calendar_course_id">
+        <div class="form-group">
+          <label for="cal_name">{{ t.name }}：</label>
+          <input type="text" class="form-control" name="name" id="cal_name" required>
+        </div>
+        <div class="form-group">
+          <label for="cal_phone">{{ t.phone }}：</label>
+          <input type="text" class="form-control" name="phone" id="cal_phone" pattern="\d{10}" placeholder="{{ t.phone_hint }}" required>
+        </div>
+        <div class="form-group">
+          <label for="cal_email">{{ t.email }}：</label>
+          <input type="email" class="form-control" name="email" id="cal_email">
+        </div>
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="waitlist2" name="want_waitlist" value="true">
+          <label class="form-check-label" for="waitlist2">{{ t.auto_waitlist }}</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ t.close }}</button>
+        <button type="submit" class="btn btn-primary">{{ t.submit }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 针对移动设备的内联样式调整 -->
+<style>
+  @media (max-width: 576px) {
+    .hero-section {
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+    }
+    .hero-section .display-4 {
+      font-size: 2rem !important;
+    }
+    .hero-section .lead {
+      font-size: 1rem !important;
+    }
+  }
+</style>
+
+<!-- FullCalendar CSS & JS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.2/main.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 预定义颜色数组（用于剩余名额不为0时）
+  var colors = ["#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8", "#6f42c1"];
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    locale: '{{ session.get("lang", "zh") }}' === 'zh' ? 'zh-cn' : 'en',
+    events: '/api/events',
+    eventDisplay: 'block',
+    eventContent: function(arg) {
+      return {
+        html: `
+          <div style="white-space: normal; overflow: visible; padding: 2px;">
+            <div style="font-weight: bold; font-size: 0.9em;">${arg.event.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+            <div style="margin-top: 2px; font-size: 0.9em;">${arg.event.title}</div>
+            <div style="font-size: 0.8em;">${arg.event.extendedProps.remaining}</div>
+          </div>
+        `
+      };
+    },
+    eventDidMount: function(info) {
+      // 解析 extendedProps.remaining，格式预期为 "剩余名额: X" 或 "Spots Left: X"
+      var remainingText = info.event.extendedProps.remaining || "";
+      var parts = remainingText.split(':');
+      var remainingNumber = 0;
+      if (parts.length > 1) {
+        remainingNumber = parseInt(parts[1].trim());
+      }
+      if (remainingNumber === 0) {
+        // 剩余名额为 0，显示灰色
+        info.el.style.backgroundColor = "#6c757d";
+        info.el.style.borderColor = "#6c757d";
+        info.el.style.color = "#fff";
+      } else {
+        var idx = parseInt(info.event.id) % colors.length;
+        info.el.style.backgroundColor = colors[idx];
+        info.el.style.borderColor = colors[idx];
+        info.el.style.color = "#fff";
+      }
+    },
+    eventClick: function(info) {
+      document.getElementById('calendar_course_id').value = info.event.id;
+      $('#calendarEnrollModal').modal('show');
+    }
+  });
+  calendar.render();
+  setInterval(function() {
+    calendar.refetchEvents();
+  }, 20000);
+  window.addEventListener('resize', function() {
+    calendar.updateSize();
+  });
+});
+</script>
+{% endblock %}

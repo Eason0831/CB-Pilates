@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- 顶部标题及添加课程按钮 -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">后台管理</h2>
+  <button type="button" class="btn btn-primary btn-lg" onclick="window.location.href='{{ url_for('add_course_page') }}'">
+    <i class="fas fa-plus"></i> 添加课程
+  </button>
+</div>
+<hr>
+<div class="row">
+  <!-- 左侧：课程列表 -->
+  <div class="col-md-6 mb-4">
+    <h4>课程列表</h4>
+    <div id="courseListContainer">
+      <div class="row">
+        {% for course in courses %}
+          {% set remaining = course.max_capacity - (course.enrollments|selectattr("is_waitlist", "equalto", false)|list|length) %}
+          {% set is_full = (remaining <= 0) %}
+        <div class="col-md-6 mb-3">
+          <div class="card {% if is_full %}bg-light text-muted{% endif %}">
+            <div class="card-body text-center">
+              <!-- 课程图标 -->
+              <div class="mb-2">
+                <i class="fas fa-dumbbell" style="font-size: 2.5rem;"></i>
+              </div>
+              <h5 class="card-title">{{ course.name }}</h5>
+              <p class="card-text mb-1">
+                <small><i class="fas fa-clock"></i> 时间：{{ course.start_time.strftime("%Y-%m-%d %H:%M") }}</small>
+              </p>
+              <p class="card-text mb-1">
+                <small><i class="fas fa-users"></i> 最大容量：{{ course.max_capacity }}</small>
+              </p>
+              <p class="card-text mb-1">
+                <small><i class="fas fa-chalkboard-teacher"></i> 教师：{{ course.teacher }}</small>
+              </p>
+              <p class="card-text mb-2">
+                <small><i class="fas fa-user-check"></i> 已预约：{{ course.enrollments|selectattr("is_waitlist", "equalto", false)|list|length }}</small>
+                <br>
+                <small><i class="fas fa-user-times"></i> 候补：{{ course.enrollments|selectattr("is_waitlist", "equalto", true)|list|length }}</small>
+              </p>
+              {% if remaining <= 0 %}
+                <span class="badge badge-danger mb-2">已满</span>
+              {% endif %}
+              <!-- 新增蓝色编辑按钮 -->
+              <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-primary btn-sm" style="margin-right: 5px;">
+                <i class="fas fa-edit"></i> 编辑课程
+              </a>
+              <a href="{{ url_for('delete_course', course_id=course.id) }}"
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('确认删除？')">
+                <i class="fas fa-trash"></i> 删除课程
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- 右侧：预约记录 -->
+  <div class="col-md-6 mb-4">
+    <h4>预约记录</h4>
+    <div id="enrollmentListContainer">
+      <table class="table table-bordered table-striped table-hover">
+        <thead>
+          <tr>
+            <th><i class="fas fa-user"></i> 姓名</th>
+            <th><i class="fas fa-phone"></i> 电话</th>
+            <th><i class="fas fa-envelope"></i> 邮箱</th>
+            <th><i class="fas fa-book"></i> 课程</th>
+            <th><i class="fas fa-clock"></i> 开课时间</th>
+            <th><i class="fas fa-calendar-alt"></i> 提交时间</th>
+            <th><i class="fas fa-info-circle"></i> 状态</th>
+            <th><i class="fas fa-cogs"></i> 操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in enrollments %}
+          <tr>
+            <td>{{ e.name }}</td>
+            <td>{{ e.phone }}</td>
+            <td>{{ e.email or '无' }}</td>
+            <td>{{ e.course.name }}</td>
+            <td>{{ e.course.start_time.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ e.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+            <td>{% if e.is_waitlist %}候补{% else %}已预约{% endif %}</td>
+            <td>
+              <a href="{{ url_for('cancel', enroll_id=e.id) }}"
+                 class="btn btn-warning btn-sm"
+                 onclick="return confirm('确认取消该预约？');">
+                <i class="fas fa-undo"></i> 取消
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+  {{ super() }}
+  <script>
+    // 局部刷新：每5秒刷新一次课程列表和预约记录区域
+    function updateCourseList() {
+      $("#courseListContainer").load(location.href + " #courseListContainer > *");
+    }
+    function updateEnrollmentList() {
+      $("#enrollmentListContainer").load(location.href + " #enrollmentListContainer > *");
+    }
+    setInterval(function() {
+      updateCourseList();
+      updateEnrollmentList();
+    }, 5000);
+  </script>
+{% endblock %}
